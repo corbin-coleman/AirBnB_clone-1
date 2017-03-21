@@ -3,8 +3,34 @@ import cmd
 from models import *
 
 
+def make_params(params):
+    param_dict = {}
+    for pair in params:
+        key_value = pair.split('=')
+        if key_value[1][:1] == '"' and key_value[1][-1:] == '"':
+            key_value[1] = key_value[1].strip('"')
+            if ' ' not in key_value[1]:
+                if '_' in key_value[1]:
+                    key_value[1] = key_value[1].replace('_', ' ')
+                param_dict.update({key_value[0]: key_value[1]})
+        elif '.' in key_value[1] and key_value[1].count('.') == 1:
+            not_float = 0
+            float_check = key_value[1].split('.')
+            for section in float_check:
+                if not section.isdigit():
+                    not_float = 1
+            if not not_float:
+                key_value[1] = float(key_value[1])
+                param_dict.update({key_value[0]: key_value[1]})
+        else:
+            if key_value[1].isdigit():
+                key_value[1] = int(key_value[1])
+                param_dict.update({key_value[0]: key_value[1]})
+    return (param_dict)
+
+
 class HBNBCommand(cmd.Cmd):
-    prompt = '(hbnb)'
+    prompt = '(hbnb) '
     storage.reload()
 
     valid_classes = ["BaseModel", "User", "State",
@@ -25,15 +51,22 @@ class HBNBCommand(cmd.Cmd):
     def do_create(self, args):
         """Create a new Basemodel"""
         args = args.split()
-        if len(args) != 1:
+        if len(args) < 1:
             print("** class name missing **")
         else:
-            if len(args) > 0 and args[0] in HBNBCommand.valid_classes:
-                new_obj = eval(args[0])()
+            if len(args) >= 1 and args[0] in HBNBCommand.valid_classes:
+                if len(args) > 1:
+                    params = []
+                    for i in range(1, len(args)):
+                        params.append(args[i])
+                    new_params = make_params(params)
+                    new_obj = eval(args[0])(new_params)
+                else:
+                    new_obj = eval(args[0])()
                 print(new_obj.id)
                 new_obj.save()
             else:
-                return
+                print ("** class doesn\'t exist **")
 
     def do_show(self, args):
         """Usage: show BaseModel 1234-1234-1234"""
