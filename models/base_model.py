@@ -10,8 +10,10 @@ Base = declarative_base()
 
 class BaseModel:
     id = Column(String(60), nullable=False, primary_key=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.datetime.now())
-    updated_at = Column(DateTime, nullable=False, default=datetime.datetime.now())
+    created_at = Column(DateTime, nullable=False,
+                        default=datetime.datetime.now())
+    updated_at = Column(DateTime, nullable=False,
+                        default=datetime.datetime.now())
 
     """The base class for all storage objects in this project"""
     def __init__(self, *args, **kwargs):

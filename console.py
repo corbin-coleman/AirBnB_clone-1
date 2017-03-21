@@ -66,7 +66,7 @@ class HBNBCommand(cmd.Cmd):
                 print(new_obj.id)
                 new_obj.save()
             else:
-                print ("** class doesn\'t exist **")
+                print("** class doesn\'t exist **")
 
     def do_show(self, args):
         """Usage: show BaseModel 1234-1234-1234"""
