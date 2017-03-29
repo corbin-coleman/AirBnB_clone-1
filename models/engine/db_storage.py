@@ -1,34 +1,38 @@
 #!/usr/bin/python3
 from os import environ
-from models import *
+from models.state import State
+from models.user import User
+from models.city import City
+from models.place import Place, PlaceAmenity
+from models.amenity import Amenity
+from models.review import Review
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import Base
 
 
 class DBStorage:
     __engine = None
     __session = None
+    classes = ['User', 'State', 'City', 'Amenity', 'Place', 'Review']
 
-    def init(self):
+    def __init__(self):
         user = environ.get('HBNB_MYSQL_USER')
         passwd = environ.get('HBNB_MYSQL_PWD')
         host = environ.get('HBNB_MYSQL_HOST')
-        database = environ.get('HBNB_MYSQL_ENV')
-        mysql = "mysql+mysqldb://{}:{}@{}/{}".format(passwd, user, host,
+        database = environ.get('HBNB_MYSQL_DB')
+        mysql = "mysql+mysqldb://{}:{}@{}/{}".format(user, passwd, host,
                                                      database)
         self.__engine = create_engine(mysql)
-        Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
         db_store = {}
-        classes = ['User', 'State', 'City', 'Amenity', 'Place', 'Review']
-        if cls and cls in classes:
-            for obj in self.__session.query(cls):
+        if cls and cls in self.classes:
+            for obj in self.__session.query(eval(cls)):
                 db_store.update({obj.id: obj})
         elif cls is None:
-            for class_name in classes:
-                for obj in self.__session.query(class_name):
+            for class_name in self.classes:
+                for obj in self.__session.query(eval(class_name)):
                     db_store.update({obj.id: obj})
         return(db_store)
 
@@ -43,5 +47,8 @@ class DBStorage:
             self.__session.delete(obj)
 
     def reload(self):
-        Session = sessionmaker(bind=self.__engine)
-        self.__session = Session()
+        Base.metadata.create_all(self.__engine)
+        self.__session = scoped_session(sessionmaker(bind=self.__engine))
+
+    def close(self):
+        self.__session.remove()

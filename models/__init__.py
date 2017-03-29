@@ -7,13 +7,12 @@ from models.city import City
 from models.place import Place
 from models.state import State
 from models.review import Review
-
+from models.engine import db_storage
+from models.engine import file_storage
 
 if environ.get('HBNB_TYPE_STORAGE') == 'db':
-    from models.engine.db_storage import DBStorage
-    storage = DBStorage()
+    storage = db_storage.DBStorage()
     storage.reload()
 else:
-    from models.engine.file_storage import FileStorage
-    storage = FileStorage()
+    storage = file_storage.FileStorage()
     storage.reload()

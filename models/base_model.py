@@ -1,19 +1,24 @@
 #!/usr/bin/python3
+from os import getenv
 import datetime
 import uuid
 import models
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
 
-Base = declarative_base()
+if getenv('HBNB_TYPE_STORAGE', 'fs') == 'db':
+    Base = declarative_base()
+else:
+    Base = object
 
 
 class BaseModel:
-    id = Column(String(60), nullable=False, primary_key=True)
-    created_at = Column(DateTime, nullable=False,
-                        default=datetime.datetime.now())
-    updated_at = Column(DateTime, nullable=False,
-                        default=datetime.datetime.now())
+    if getenv('HBNB_TYPE_STORAGE', 'fs') == 'db':
+        id = Column(String(60), nullable=False, primary_key=True)
+        created_at = Column(DateTime, nullable=False,
+                            default=datetime.datetime.now())
+        updated_at = Column(DateTime, nullable=False,
+                            default=datetime.datetime.now())
 
     """The base class for all storage objects in this project"""
     def __init__(self, *args, **kwargs):
