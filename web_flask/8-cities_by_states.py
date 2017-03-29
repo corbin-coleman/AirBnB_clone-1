@@ -9,6 +9,7 @@ app = Flask(__name__)
 def teardown(exception):
     storage.close()
 
+
 @app.route('/cities_by_states')
 def cities_by_states():
     return render_template('8-cities_by_states.html',
